@@ -1,0 +1,38 @@
+% ---------------------------------------
+% VERIFICAR QUE UNA REINA SEA SEGURA
+% ---------------------------------------
+
+seguro(_, [], _).
+
+seguro(Fila, [Fila2|Resto], Distancia) :-
+    Fila =\= Fila2,
+    abs(Fila - Fila2) =\= Distancia,
+    NuevaDistancia is Distancia + 1,
+    seguro(Fila, Resto, NuevaDistancia).
+
+% ---------------------------------------
+% DFS PARA LAS 8 REINAS
+% ---------------------------------------
+
+dfs(Estado, _, Estado) :-
+    length(Estado, 8).
+
+dfs(EstadoActual, Visitados, Solucion) :-
+    length(EstadoActual, N),
+    N < 8,
+    between(1, 8, Fila),
+    seguro(Fila, EstadoActual, 1),
+    NuevoEstado = [Fila | EstadoActual],
+    \+ member(NuevoEstado, Visitados),
+    dfs(NuevoEstado,
+        [NuevoEstado|Visitados],
+        Solucion).
+
+solucion(Solucion) :-
+    EstadoInicial = [],
+    dfs(EstadoInicial, [EstadoInicial], Solucion).
+
+% Query:
+
+% solucion(Solucion).
+% Solucion = [Solucion = [4, 2, 7, 3, 6, 8, 5, 1]]
