@@ -1,0 +1,48 @@
+power_list([
+    power(logica, 100, 10),
+    power(sigilo, 150, 30),
+    power(fuerza, 250, 50)
+]).
+
+villain_list([
+    villain(riddler, 90, [logica, sigilo]),
+    villain(bane, 240, [fuerza])
+]).
+
+% Caso base: no quedan villanos
+dfs(estado([], _, _), _).
+
+% Caso recursivo
+dfs(estado([villain(Nombre, Vida, Debilidades)|Resto],
+           Poderes,
+           Energia),
+    Visitados) :-
+
+    member(power(PoderNombre, Danio, Costo), Poderes),
+    member(PoderNombre, Debilidades),
+    Energia >= Costo,
+
+    NuevaVida is Vida - Danio,
+    NuevaEnergia is Energia - Costo,
+
+    ( NuevaVida =< 0 ->
+        NuevoEstado = estado(Resto, Poderes, NuevaEnergia)
+    ;
+        NuevoEstado = estado([villain(Nombre, NuevaVida, Debilidades)|Resto],
+                             Poderes,
+                             NuevaEnergia)
+    ),
+
+    \+ member(NuevoEstado, Visitados),
+    dfs(NuevoEstado, [NuevoEstado|Visitados]).
+
+batman_can_win(EnergiaMaxima) :-
+    power_list(Superpoderes),
+    villain_list(Villanos),
+    EstadoInicial = estado(Villanos, Superpoderes, EnergiaMaxima),
+    dfs(EstadoInicial, [EstadoInicial]).
+
+% Query:
+
+% batman_can_win(100).
+% Solucion = [true]
